@@ -4,7 +4,7 @@ WhatsApp channel — Twilio WhatsApp API.
 Students: implement send_whatsapp() using the Twilio Python SDK.
 """
 from app.config import settings
-
+from twilio.rest import Client
 
 def send_whatsapp(to: str, body: str) -> str:
     """
@@ -22,6 +22,22 @@ def send_whatsapp(to: str, body: str) -> str:
       )
       return message.sid
     """
-    raise NotImplementedError(
-        "Install twilio and implement send_whatsapp() in app/channels/whatsapp.py"
+
+    client = Client(
+        settings.twilio_account_sid,
+        settings.twilio_auth_token,
     )
+
+    destination = (
+        to
+        if to.startswith("whatsapp:")
+        else f"whatsapp:{to}"
+    )
+
+    message = client.messages.create(
+        body=body,
+        from_=settings.twilio_whatsapp_number,
+        to=destination,
+    )
+
+    return message.sid
